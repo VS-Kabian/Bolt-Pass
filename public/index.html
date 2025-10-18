@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bolt-Pass — Password Manager</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar bw">
+      <div class="brand">Bolt-Pass</div>
+      <div class="header-right">
+        <div class="user-area" id="userArea"></div>
+        <button id="settingsBtn" class="icon-btn-header hidden" title="Settings" aria-label="Settings">⚙️</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="auth" id="authSection">
+        <div class="card auth-card">
+          <div class="tabs">
+            <button id="tabLogin" class="active">Login</button>
+            <button id="tabRegister">Register</button>
+          </div>
+
+          <form id="loginForm" class="form">
+            <label>Username<input name="username" required></label>
+            <label>Password<input name="password" type="password" required></label>
+            <div class="row">
+              <button type="submit" class="primary">Login</button>
+              <button type="button" id="fillDemo" class="btn-ghost">Demo</button>
+            </div>
+            <div class="hint">Sign in to view your vault.</div>
+          </form>
+
+          <form id="registerForm" class="form hidden">
+            <label>Username<input name="username" required></label>
+            <label>Password<input name="password" type="password" required></label>
+            <label>Confirm Password<input name="password2" type="password" required></label>
+            <div class="row">
+              <button type="submit" class="primary">Create account</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="vault hidden" id="vaultSection">
+        <div class="controls">
+          <div class="searchbar">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input id="searchInput" type="text" placeholder="Search passwords" aria-label="Search passwords">
+          </div>
+          <div class="filters" id="filters">
+            <button class="pill selected" data-cat="All">All</button>
+            <button class="pill" data-cat="Work">Work</button>
+            <button class="pill" data-cat="Personal">Personal</button>
+            <button class="pill" data-cat="Banking">Banking</button>
+          </div>
+        </div>
+
+        <div class="entries-grid" id="entries"></div>
+
+        <button id="fabAdd" class="fab bw" title="Add new password" aria-label="Add new password">+</button>
+      </section>
+
+    </main>
+    <footer class="footer bw-foot">
+      <small>Bolt-Pass — Minimal password manager</small>
+    </footer>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsBackdrop" class="modal-backdrop"></div>
+  <div id="settingsModal" class="settings-modal">
+    <div class="modal-header">
+      <h2>Settings</h2>
+      <button id="closeSettings" class="close-btn" aria-label="Close settings">✕</button>
+    </div>
+    <div class="modal-content">
+      <div class="user-info">
+        <div class="user-icon">👤</div>
+        <div class="user-email" id="settingsUserEmail">coldex006@gmail.com</div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stat-item">
+          <div class="stat-icon">🔒</div>
+          <div class="stat-info">
+            <div class="stat-label">Total Passwords</div>
+            <div class="stat-value" id="modalStatTotal">0</div>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-info">
+            <div class="stat-label">Weak Passwords</div>
+            <div class="stat-value" id="modalStatWeak">0</div>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <div class="stat-label">Strong Passwords</div>
+            <div class="stat-value" id="modalStatStrong">0</div>
+          </div>
+        </div>
+      </div>
+
+      <button id="modalLogoutBtn" class="logout-btn">Logout</button>
+    </div>
+  </div>
+
+  <!-- Sidebar for Add/Edit Password -->
+  <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <h2 id="sidebarTitle">Add New Password</h2>
+      <div class="sidebar-actions">
+        <button id="editBtn" class="icon-btn-sidebar hidden" title="Edit" aria-label="Edit password">✏️</button>
+        <button id="saveHeaderBtn" class="icon-btn-sidebar primary-mini hidden" title="Save" aria-label="Save changes">Save</button>
+        <button id="cancelHeaderBtn" class="icon-btn-sidebar btn-ghost-mini hidden" title="Cancel" aria-label="Cancel edit">Cancel</button>
+        <button id="menuBtn" class="icon-btn-sidebar hidden" title="Menu" aria-label="Menu">⋮</button>
+        <button id="closeSidebar" class="close-btn" aria-label="Close sidebar">✕</button>
+      </div>
+    </div>
+
+    <!-- View Mode -->
+    <div id="viewMode" class="sidebar-content hidden">
+      <div class="view-field">
+        <div class="view-label">Title</div>
+        <div class="view-value" id="viewTitle">-</div>
+      </div>
+
+      <div class="view-field">
+        <div class="view-label">Website URL</div>
+        <div class="view-value-row">
+          <a id="viewWebsite" class="view-link" href="#" target="_blank" rel="noopener">-</a>
+          <button class="copy-btn" data-copy="url" title="Copy URL" aria-label="Copy URL">📋</button>
+        </div>
+      </div>
+
+      <div class="view-field">
+        <div class="view-label">Email</div>
+        <div class="view-value-row">
+          <div class="view-value" id="viewEmail">-</div>
+          <button class="copy-btn" data-copy="email" title="Copy email" aria-label="Copy email">📋</button>
+        </div>
+      </div>
+
+      <div class="view-field">
+        <div class="view-label">Password</div>
+        <div class="view-value-row">
+          <div class="view-value password-masked" id="viewPassword">••••••••</div>
+          <button id="toggleViewPw" class="copy-btn" title="Show password" aria-label="Toggle password visibility">👁️</button>
+          <button class="copy-btn" data-copy="password" title="Copy password" aria-label="Copy password">📋</button>
+        </div>
+      </div>
+
+      <div class="view-field">
+        <div class="view-label">Category</div>
+        <div class="category-badge" id="viewCategory">General</div>
+      </div>
+
+      <div class="view-timestamps">
+        <div class="timestamp-item">Created: <span id="viewCreated">-</span></div>
+        <div class="timestamp-item">Modified: <span id="viewModified">-</span></div>
+      </div>
+    </div>
+
+    <!-- Edit Mode -->
+    <div id="editMode" class="sidebar-content">
+      <form id="sidebarForm" class="form" novalidate>
+        <input type="hidden" id="editId" value="">
+
+        <label>Title <span class="req">*</span>
+          <input name="title" id="sidebarTitleInput" placeholder="e.g. Google" required>
+        </label>
+        <div id="err-title" class="field-error" aria-live="polite"></div>
+
+        <label>Website URL
+          <input name="website_url" id="sidebarWebsiteUrl" type="url" placeholder="https://accounts.google.com">
+        </label>
+
+        <label>Email
+          <input name="email" id="sidebarEmail" type="email" placeholder="you@example.com">
+        </label>
+
+        <label>Category
+          <select name="category" id="sidebarCategory">
+            <option value="General">General • 🔒</option>
+            <option value="Work">Work • 💼</option>
+            <option value="Personal">Personal • 🏠</option>
+            <option value="Banking">Banking • 🏦</option>
+          </select>
+        </label>
+
+        <label>Password <span class="req">*</span>
+          <div class="input-wrap">
+            <input name="password" id="sidebarPassword" type="password" placeholder="Enter a strong password" required>
+            <button type="button" id="togglePwEye" class="eye-btn" aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </label>
+        <div class="strength" aria-live="polite">
+          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          <div class="strength-label" id="strengthLabel">Weak</div>
+        </div>
+        <div id="err-password" class="field-error" aria-live="polite"></div>
+
+        <div class="row">
+          <button type="button" id="genPw" class="gen-btn-new">
+            <span class="shimmer"></span>
+            Generate Password
+          </button>
+        </div>
+
+        <div class="sidebar-footer">
+          <button class="primary primary-lg" type="submit">Save</button>
+          <button type="button" class="btn-ghost" id="cancelSidebar">Cancel</button>
+        </div>
+        <div id="msg" class="hint" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Menu Dropdown -->
+  <div id="menuDropdown" class="menu-dropdown hidden">
+    <button id="deleteBtn" class="menu-item delete-item">Delete Password</button>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

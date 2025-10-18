@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Add Password — Bolt-Pass</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar bw">
+      <div class="brand">Bolt-Pass</div>
+      <nav><a href="/" class="btn-ghost">Back</a></nav>
+    </header>
+    <main class="container">
+      <section class="card" style="max-width:560px;margin:24px auto;">
+        <form id="newForm" class="form" novalidate>
+          <label>Title <span class="req">*</span>
+            <input name="title" placeholder="e.g. Google" required>
+          </label>
+          <div id="err-title" class="field-error" aria-live="polite"></div>
+
+          <label>Website URL
+            <input name="website_url" type="url" placeholder="https://accounts.google.com">
+          </label>
+
+          <label>Email
+            <input name="email" type="email" placeholder="you@example.com">
+          </label>
+
+          <label>Category
+            <select name="category">
+              <option value="General">General • 🔒</option>
+              <option value="Work">Work • 💼</option>
+              <option value="Personal">Personal • 🏠</option>
+              <option value="Banking">Banking • 🏦</option>
+            </select>
+          </label>
+
+          <label>Password <span class="req">*</span>
+            <div class="input-wrap">
+              <input name="password" id="password" type="password" placeholder="Enter a strong password" required>
+              <button type="button" id="togglePwEye" class="eye-btn" aria-label="Toggle password visibility">👁️</button>
+            </div>
+          </label>
+          <div class="strength" aria-live="polite">
+            <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+            <div class="strength-label" id="strengthLabel">Weak</div>
+          </div>
+          <div id="err-password" class="field-error" aria-live="polite"></div>
+
+          <div class="row">
+            <button type="button" id="genPw" class="gen-btn"><span class="spark"></span> ⚡ Generate</button>
+          </div>
+
+          <div class="row">
+            <button class="primary primary-lg" type="submit">Save</button>
+            <a class="linklike" href="/">Cancel</a>
+          </div>
+          <div id="msg" class="hint" aria-live="polite"></div>
+        </form>
+      </section>
+    </main>
+    <footer class="footer bw-foot"><small>Bolt-Pass — Add new</small></footer>
+  </div>
+  <script src="/new.js"></script>
+</body>
+</html>
