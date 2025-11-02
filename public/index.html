@@ -80,7 +80,7 @@
     <div class="modal-content">
       <div class="user-info">
         <div class="user-icon">👤</div>
-        <div class="user-email" id="settingsUserEmail">coldex006@gmail.com</div>
+        <div class="user-email" id="settingsUserEmail">user@example.com</div>
       </div>
 
       <div class="stats-section">
@@ -119,107 +119,111 @@
       <div class="sidebar-actions">
         <button id="editBtn" class="icon-btn-sidebar hidden" title="Edit" aria-label="Edit password">✏️</button>
         <button id="saveHeaderBtn" class="icon-btn-sidebar primary-mini hidden" title="Save" aria-label="Save changes">Save</button>
-        <button id="cancelHeaderBtn" class="icon-btn-sidebar btn-ghost-mini hidden" title="Cancel" aria-label="Cancel edit">Cancel</button>
-        <button id="menuBtn" class="icon-btn-sidebar hidden" title="Menu" aria-label="Menu">⋮</button>
+        <button id="cancelHeaderBtn" class="icon-btn-sidebar btn-ghost-mini hidden" title="Cancel" aria-label="Cancel">Cancel</button>
+        <button id="menuBtn" class="icon-btn-sidebar hidden" title="More options" aria-label="More options">⋯</button>
         <button id="closeSidebar" class="close-btn" aria-label="Close sidebar">✕</button>
       </div>
     </div>
 
-    <!-- View Mode -->
-    <div id="viewMode" class="sidebar-content hidden">
-      <div class="view-field">
-        <div class="view-label">Title</div>
-        <div class="view-value" id="viewTitle">-</div>
-      </div>
-
-      <div class="view-field">
-        <div class="view-label">Website URL</div>
-        <div class="view-value-row">
-          <a id="viewWebsite" class="view-link" href="#" target="_blank" rel="noopener">-</a>
-          <button class="copy-btn" data-copy="url" title="Copy URL" aria-label="Copy URL">📋</button>
+    <div class="sidebar-content">
+      <!-- View Mode -->
+      <div id="viewMode" class="hidden">
+        <div class="view-field">
+          <div class="view-label">Title</div>
+          <div class="view-value" id="viewTitle">-</div>
         </div>
-      </div>
 
-      <div class="view-field">
-        <div class="view-label">Email</div>
-        <div class="view-value-row">
-          <div class="view-value" id="viewEmail">-</div>
-          <button class="copy-btn" data-copy="email" title="Copy email" aria-label="Copy email">📋</button>
-        </div>
-      </div>
-
-      <div class="view-field">
-        <div class="view-label">Password</div>
-        <div class="view-value-row">
-          <div class="view-value password-masked" id="viewPassword">••••••••</div>
-          <button id="toggleViewPw" class="copy-btn" title="Show password" aria-label="Toggle password visibility">👁️</button>
-          <button class="copy-btn" data-copy="password" title="Copy password" aria-label="Copy password">📋</button>
-        </div>
-      </div>
-
-      <div class="view-field">
-        <div class="view-label">Category</div>
-        <div class="category-badge" id="viewCategory">General</div>
-      </div>
-
-      <div class="view-timestamps">
-        <div class="timestamp-item">Created: <span id="viewCreated">-</span></div>
-        <div class="timestamp-item">Modified: <span id="viewModified">-</span></div>
-      </div>
-    </div>
-
-    <!-- Edit Mode -->
-    <div id="editMode" class="sidebar-content">
-      <form id="sidebarForm" class="form" novalidate>
-        <input type="hidden" id="editId" value="">
-
-        <label>Title <span class="req">*</span>
-          <input name="title" id="sidebarTitleInput" placeholder="e.g. Google" required>
-        </label>
-        <div id="err-title" class="field-error" aria-live="polite"></div>
-
-        <label>Website URL
-          <input name="website_url" id="sidebarWebsiteUrl" type="url" placeholder="https://accounts.google.com">
-        </label>
-
-        <label>Email
-          <input name="email" id="sidebarEmail" type="email" placeholder="you@example.com">
-        </label>
-
-        <label>Category
-          <select name="category" id="sidebarCategory">
-            <option value="General">General • 🔒</option>
-            <option value="Work">Work • 💼</option>
-            <option value="Personal">Personal • 🏠</option>
-            <option value="Banking">Banking • 🏦</option>
-          </select>
-        </label>
-
-        <label>Password <span class="req">*</span>
-          <div class="input-wrap">
-            <input name="password" id="sidebarPassword" type="password" placeholder="Enter a strong password" required>
-            <button type="button" id="togglePwEye" class="eye-btn" aria-label="Toggle password visibility">👁️</button>
+        <div class="view-field">
+          <div class="view-label">Website</div>
+          <div class="view-value-row">
+            <a id="viewWebsite" href="#" class="view-link" target="_blank" rel="noopener noreferrer">-</a>
+            <button class="copy-btn" onclick="copyToClipboard(viewWebsite.href, 'Website URL')">Copy</button>
           </div>
-        </label>
-        <div class="strength" aria-live="polite">
-          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
-          <div class="strength-label" id="strengthLabel">Weak</div>
         </div>
-        <div id="err-password" class="field-error" aria-live="polite"></div>
 
-        <div class="row">
-          <button type="button" id="genPw" class="gen-btn-new">
+        <div class="view-field">
+          <div class="view-label">Email/Username</div>
+          <div class="view-value-row">
+            <span class="view-value" id="viewEmail">-</span>
+            <button class="copy-btn" onclick="copyToClipboard(viewEmail.textContent, 'Email/Username')">Copy</button>
+          </div>
+        </div>
+
+        <div class="view-field">
+          <div class="view-label">Password</div>
+          <div class="view-value-row">
+            <span class="view-value password-masked" id="viewPassword">••••••••</span>
+            <button id="toggleViewPw" class="copy-btn" title="Show password">👁️</button>
+            <button class="copy-btn" onclick="copyToClipboard(viewPassword.dataset.password, 'Password')">Copy</button>
+          </div>
+        </div>
+
+        <div class="view-field">
+          <div class="view-label">Category</div>
+          <div class="category-badge" id="viewCategory">General</div>
+        </div>
+
+        <div class="view-timestamps">
+          <div class="timestamp-item">Created: <span id="viewCreated">-</span></div>
+          <div class="timestamp-item">Modified: <span id="viewModified">-</span></div>
+        </div>
+      </div>
+
+      <!-- Edit Mode -->
+      <div id="editMode">
+        <form id="sidebarForm" class="form">
+          <input type="hidden" id="editId" name="id">
+
+          <label for="sidebarTitle">Title <span class="req">*</span>
+            <input id="sidebarTitleInput" name="title" type="text" placeholder="e.g. Gmail Account" required>
+            <div id="err-title" class="field-error"></div>
+          </label>
+
+          <label for="sidebarWebsite">Website URL
+            <input id="sidebarWebsite" name="website_url" type="url" placeholder="https://example.com">
+          </label>
+
+          <label for="sidebarEmail">Email/Username
+            <input id="sidebarEmail" name="email" type="text" placeholder="user@example.com">
+          </label>
+
+          <label for="sidebarPassword">Password <span class="req">*</span>
+            <div class="input-wrap">
+              <input id="sidebarPassword" name="password" type="password" placeholder="Enter password" required>
+              <button id="togglePwEye" type="button" class="eye-btn" title="Toggle password visibility" aria-label="Toggle password visibility">👁️</button>
+            </div>
+            <div id="err-password" class="field-error"></div>
+
+            <div class="strength">
+              <div class="strength-bar">
+                <div id="strengthFill" class="strength-fill"></div>
+              </div>
+              <div id="strengthLabel" class="strength-label">Weak</div>
+            </div>
+          </label>
+
+          <button id="genPw" type="button" class="gen-btn-new">
             <span class="shimmer"></span>
-            Generate Password
+            ✨ Generate Strong Password
           </button>
-        </div>
 
-        <div class="sidebar-footer">
-          <button class="primary primary-lg" type="submit">Save</button>
-          <button type="button" class="btn-ghost" id="cancelSidebar">Cancel</button>
-        </div>
-        <div id="msg" class="hint" aria-live="polite"></div>
-      </form>
+          <label for="sidebarCategory">Category
+            <select id="sidebarCategory" name="category">
+              <option value="Personal">Personal</option>
+              <option value="Work">Work</option>
+              <option value="Banking">Banking</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Social">Social</option>
+              <option value="General">General</option>
+            </select>
+          </label>
+
+          <div class="sidebar-footer">
+            <button type="submit" class="primary primary-lg">Save Password</button>
+            <button id="cancelSidebar" type="button" class="btn-ghost">Cancel</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -230,6 +234,9 @@
 
   <!-- Toast Notification -->
   <div id="toast" class="toast"></div>
+
+  <!-- Error Message -->
+  <div id="msg" class="hidden"></div>
 
   <script src="/app.js"></script>
 </body>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bolt-Pass - Debug Login</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #000; color: #fff; border: none; border-radius: 6px; }
+        button:hover { background: #333; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .success { color: green; }
+        .error { color: red; }
+        input { padding: 8px; width: 200px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Bolt-Pass - Debug & Login Tool</h1>
+
+    <div class="section">
+        <h3>1. Check Current Status</h3>
+        <button onclick="checkStatus()">Check localStorage Token</button>
+        <button onclick="clearStorage()">Clear All Data</button>
+        <div id="status"></div>
+    </div>
+
+    <div class="section">
+        <h3>2. Test Server Connection</h3>
+        <button onclick="pingServer()">Ping Server</button>
+        <div id="serverStatus"></div>
+    </div>
+
+    <div class="section">
+        <h3>3. Login</h3>
+        <input type="text" id="username" placeholder="Username/Email" value="kabilan.muki@gmail.com"><br>
+        <input type="password" id="password" placeholder="Password" value=""><br>
+        <button onclick="login()">Login</button>
+        <button onclick="register()">Register New</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="section">
+        <h3>4. Test API with Token</h3>
+        <button onclick="fetchPasswords()">Fetch Passwords</button>
+        <div id="apiResult"></div>
+    </div>
+
+    <div class="section">
+        <h3>5. Go to Main App</h3>
+        <button onclick="window.location.href='/'">Open Main App</button>
+    </div>
+
+    <script>
+        function checkStatus() {
+            const token = localStorage.getItem('bp_token');
+            const user = localStorage.getItem('bp_user');
+            const status = document.getElementById('status');
+
+            if (token && user) {
+                status.innerHTML = `<div class="success">
+                    <strong>Logged in as:</strong> ${user}<br>
+                    <strong>Token:</strong> ${token.substring(0, 50)}...<br>
+                    <pre>${JSON.stringify(parseJwt(token), null, 2)}</pre>
+                </div>`;
+            } else {
+                status.innerHTML = '<div class="error">Not logged in - No token found in localStorage</div>';
+            }
+        }
+
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                return JSON.parse(window.atob(base64));
+            } catch (e) {
+                return { error: 'Invalid token' };
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('bp_token');
+            localStorage.removeItem('bp_user');
+            document.getElementById('status').innerHTML = '<div class="success">✓ Cleared all data</div>';
+        }
+
+        async function pingServer() {
+            const div = document.getElementById('serverStatus');
+            try {
+                const res = await fetch('/api/ping');
+                const data = await res.json();
+                div.innerHTML = '<div class="success">✓ Server is running: ' + JSON.stringify(data) + '</div>';
+            } catch (err) {
+                div.innerHTML = '<div class="error">✗ Server error: ' + err.message + '</div>';
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const div = document.getElementById('loginResult');
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (data.token) {
+                    localStorage.setItem('bp_token', data.token);
+                    localStorage.setItem('bp_user', username);
+                    div.innerHTML = '<div class="success">✓ Login successful!<br>Token saved to localStorage</div>';
+                    checkStatus();
+                } else {
+                    div.innerHTML = '<div class="error">✗ Login failed: ' + (data.error || 'Unknown error') + '</div>';
+                }
+            } catch (err) {
+                div.innerHTML = '<div class="error">✗ Error: ' + err.message + '</div>';
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const div = document.getElementById('loginResult');
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (data.token) {
+                    localStorage.setItem('bp_token', data.token);
+                    localStorage.setItem('bp_user', username);
+                    div.innerHTML = '<div class="success">✓ Registration successful!<br>Token saved to localStorage</div>';
+                    checkStatus();
+                } else {
+                    div.innerHTML = '<div class="error">✗ Registration failed: ' + (data.error || 'Unknown error') + '</div>';
+                }
+            } catch (err) {
+                div.innerHTML = '<div class="error">✗ Error: ' + err.message + '</div>';
+            }
+        }
+
+        async function fetchPasswords() {
+            const div = document.getElementById('apiResult');
+            const token = localStorage.getItem('bp_token');
+
+            if (!token) {
+                div.innerHTML = '<div class="error">✗ No token found. Please login first.</div>';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/entries/titles', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await res.json();
+
+                if (data.ok) {
+                    div.innerHTML = '<div class="success">✓ API Call Successful!<br><pre>' +
+                        JSON.stringify(data, null, 2) + '</pre></div>';
+                } else {
+                    div.innerHTML = '<div class="error">✗ API Error: ' + (data.error || 'Unknown error') + '</div>';
+                }
+            } catch (err) {
+                div.innerHTML = '<div class="error">✗ Error: ' + err.message + '</div>';
+            }
+        }
+
+        // Auto-check status on load
+        window.onload = () => {
+            checkStatus();
+            pingServer();
+        };
+    </script>
+</body>
+</html>
